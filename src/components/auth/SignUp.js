@@ -7,7 +7,7 @@ export default function SignUp() {
   const [password, setPassword] = React.useState("");
 
   const createUser = () => {
-    console.log("Called");
+
     const userData = {
       name: name,
       email: email,
@@ -15,7 +15,7 @@ export default function SignUp() {
     };
     axios
       .post("http://localhost:8000/signup", userData)
-      .then(res => console.log(res.data.code));
+      .then(res => console.log(res));
   };
   return (
     <>
