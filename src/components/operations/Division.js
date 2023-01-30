@@ -1,5 +1,6 @@
 import React from "react";
 import axios from "axios";
+import CalculatedData from "../main/CalculatedData";
 
 export default function Division() {
   const [operandOne, setOperandOne] = React.useState(0);
@@ -41,6 +42,7 @@ export default function Division() {
           The result of {operandOne} and {operandTwo} is {result}
         </div>
       )}
+      <CalculatedData />
     </>
   );
 }

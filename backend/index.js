@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const User = require("./models/user");
+const Operation = require("./models/operation");
 
 const app = express();
 
@@ -14,35 +15,47 @@ app.get("/", (req, res) => {
   res.json({ message: "Hello world" });
 });
 
-app.post("/add", (req, res) => {
-  let operandOne = parseInt(req.body.operandOne);
-  let operandTwo = parseInt(req.body.operandTwo);
+app.post("/add", async (req, res) => {
+  try {
+    const { operandOne, operandTwo, userId } = req.body;
 
-  let sum = operandOne + operandTwo;
-  res.send({ result: sum });
+    const sum = parseInt(operandOne) + parseInt(operandTwo);
+
+    const newOperation = new Operation({
+      operandOne: parseInt(operandOne),
+      operandTwo: parseInt(operandTwo),
+      calculation: "+",
+      userId: userId,
+      result: parseInt(sum)
+    });
+
+    await newOperation.save();
+
+    res.status(200).send({ result: sum });
+  } catch (err) {
+    console.log(res);
+    res.status(400).send(err);
+  }
 });
 
 app.post("/difference", (req, res) => {
-  let operandOne = parseInt(req.body.operandOne);
-  let operandTwo = parseInt(req.body.operandTwo);
+  const { operandOne, operandTwo } = req.body;
 
-  let difference = operandOne - operandTwo;
+  const difference = parseInt(operandOne) - parseInt(operandTwo);
   res.send({ result: difference });
 });
 
 app.post("/multiplication", (req, res) => {
-  let operandOne = parseInt(req.body.operandOne);
-  let operandTwo = parseInt(req.body.operandTwo);
+  const { operandOne, operandTwo } = req.body;
 
-  let product = operandOne * operandTwo;
+  const product = parseInt(operandOne) * parseInt(operandTwo);
   res.send({ result: product });
 });
 
 app.post("/divide", (req, res) => {
-  let operandOne = parseInt(req.body.operandOne);
-  let operandTwo = parseInt(req.body.operandTwo);
+  const { operandOne, operandTwo } = req.body;
 
-  let dividend = operandOne / operandTwo;
+  const dividend = parseInt(operandOne) / parseInt(operandTwo);
   res.send({ result: dividend });
 });
 
@@ -66,6 +79,16 @@ app.post("/signup", async (req, res) => {
   } catch (err) {
     console.log(err);
     res.status(500).send({ message: "Error creating user" });
+  }
+});
+
+app.get("/calculation_data", async (req, res) => {
+  try {
+    const data = await Operation.find({ userId: "1" });
+
+    res.status(200).send({ operations: data });
+  } catch (err) {
+    res.status(500).send({ message: "Failed to fetch data" });
   }
 });
 

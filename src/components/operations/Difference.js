@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import CalculatedData from "../main/CalculatedData";
 
 export default function Difference() {
   const [operandOne, setOperandOne] = React.useState(0);
@@ -41,6 +42,7 @@ export default function Difference() {
           The Difference of {operandOne} and {operandTwo} is {result}
         </div>
       )}
+      <CalculatedData />
     </>
   );
 }
