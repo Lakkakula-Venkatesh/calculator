@@ -7,8 +7,13 @@ export default function CalculatedData() {
 
   useEffect(() => {
     setLoading(true);
+    const storedToken = document.cookie.split("token=")[1];
     axios
-      .get("http://localhost:8000/calculation_data")
+      .get("http://localhost:8000/calculation_data", {
+        headers: {
+          token: storedToken
+        }
+      })
       .then(res => {
         if (loading) setData(res.data.operations);
       })

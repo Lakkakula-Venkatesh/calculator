@@ -1,26 +1,27 @@
 import React, { useState } from "react";
-import { useHistory } from "react-router-dom";
 import axios from "axios";
 import CalculatedData from "../main/CalculatedData";
 
 export default function Add() {
-  const history = useHistory();
   const [operandOne, setOperandOne] = React.useState(0);
   const [operandTwo, setOperandTwo] = React.useState(0);
   const [loading, setLoading] = useState(true);
   const [result, setResult] = React.useState(0);
 
   const fetchResult = () => {
+    const storedToken = document.cookie.split('token=')[1];
     const params = {
       operandOne: operandOne,
-      operandTwo: operandTwo,
-      userId: 1
+      operandTwo: operandTwo
     };
     axios
-      .post("http://localhost:8000/add", params)
+      .post("http://localhost:8000/add", params, {
+        headers: {
+          'token': storedToken
+        }
+      })
       .then(res => setResult(res.data.result))
-      .then(() => setLoading(false))
-      .then(() => history.push("/"));
+      .then(() => setLoading(false));
   };
 
   return (

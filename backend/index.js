@@ -4,6 +4,11 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const User = require("./models/user");
 const Operation = require("./models/operation");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const saltRounds = 10;
+const tokenSecret = "SecreT";
+const middleware = require("./middleware");
 
 const app = express();
 
@@ -17,18 +22,18 @@ app.get("/", (req, res) => {
 
 app.post("/add", async (req, res) => {
   try {
-    const { operandOne, operandTwo, userId } = req.body;
-
+    const { operandOne, operandTwo } = req.body;
+    const fetchedUserId = decryptWebToken(req.headers.token);
     const sum = parseInt(operandOne) + parseInt(operandTwo);
 
     const newOperation = new Operation({
       operandOne: parseInt(operandOne),
       operandTwo: parseInt(operandTwo),
       calculation: "+",
-      userId: userId,
+      userId: parseInt(fetchedUserId),
       result: parseInt(sum)
     });
-
+    console.log(newOperation, "newOperation");
     await newOperation.save();
 
     res.status(200).send({ result: sum });
@@ -68,10 +73,13 @@ app.post("/signup", async (req, res) => {
       res.status(400).send({ message: "User already exists" });
     }
 
+    const salt = bcrypt.genSaltSync(saltRounds);
+    const hash = bcrypt.hashSync(password, salt);
+
     const newUser = new User({
       name: name,
       email: email,
-      password: password
+      password: hash
     });
 
     const savedUser = await newUser.save();
@@ -84,13 +92,51 @@ app.post("/signup", async (req, res) => {
 
 app.get("/calculation_data", async (req, res) => {
   try {
-    const data = await Operation.find({ userId: "1" });
+    const fetchedUserId = decryptWebToken(req.headers.token);
+
+    const data = await Operation.find({ userId: parseInt(fetchedUserId) });
 
     res.status(200).send({ operations: data });
   } catch (err) {
     res.status(500).send({ message: "Failed to fetch data" });
   }
 });
+
+app.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    console.log(email, password, "credentials");
+    const user = await User.findOne({ email: email });
+
+    if (user == null) {
+      res.status(400).send({ message: "User not yet registered" });
+    }
+
+    const correctPassword = bcrypt.compareSync(password, user.password);
+
+    if (correctPassword) {
+      const payload = {
+        id: user.id,
+        email: user.email
+      };
+
+      res.status(200).send({
+        message: "User succesfully logged in",
+        token: generateWebToken(payload)
+      });
+    } else {
+      res.status(401).send({ message: "Password entered is incorrect" });
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({ message: "Unable to fetch user data" });
+  }
+});
+
+const generateWebToken = data =>
+  jwt.sign(data, tokenSecret, { expiresIn: "24h" });
+
+const decryptWebToken = str => jwt.verify(str, tokenSecret).id;
 
 app.listen("8000", () => {
   console.log("Server listening at 8000");
