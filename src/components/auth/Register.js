@@ -1,10 +1,10 @@
 import axios from "axios";
 import React from "react";
-import Cookies from 'js-cookie';
 import Home from "../main/Home";
+import Cookie from "js-cookie";
 
-export default function Login({ updateAuthStatus, isAuthenticated }) {
-
+export default function Register({ updateAuthStatus, isAuthenticated }) {
+  const [name, setName] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
 
@@ -13,21 +13,37 @@ export default function Login({ updateAuthStatus, isAuthenticated }) {
     return <Home />;
   }
 
-  const verifyUser = async e => {
+  const createUser = (e) => {
     e.preventDefault();
 
-    await axios
-      .post("http://localhost:8000/api/auth/login", { email, password })
+    const userData = {
+      name: name,
+      email: email,
+      password: password
+    };
+    axios
+      .post("http://localhost:8000/api/auth/register", userData)
       .then(res => {
-        Cookies.set('token', res.data.token);
+        Cookie.set('token', res.data.token)
         updateAuthStatus(true);
-        window.location.href='/';
-      })
-      .catch(err => console.log(err));
+        window.history.pushState({}, "", '/');
+      });
   };
   return (
     <div className="auth-form">
-      <form onSubmit={verifyUser}>
+      <form onSubmit={createUser}>
+        <div className="mb-3">
+          <label htmlFor="exampleInputEmail1" className="form-label">
+            Name
+          </label>
+          <input
+            type="text"
+            className="form-control"
+            id="exampleInputEmail1"
+            aria-describedby="emailHelp"
+            onChange={e => setName(e.target.value)}
+          />
+        </div>
         <div className="mb-3">
           <label htmlFor="exampleInputEmail1" className="form-label">
             Email address
@@ -47,12 +63,15 @@ export default function Login({ updateAuthStatus, isAuthenticated }) {
           <input
             type="password"
             className="form-control"
-            id="current-password"
+            id="exampleInputPassword1"
             autoComplete="on"
             onChange={e => setPassword(e.target.value)}
           />
         </div>
-        <button type="submit" className="btn btn-primary">
+        <button
+          type="submit"
+          className="btn btn-primary"
+        >
           Submit
         </button>
       </form>
