@@ -25,7 +25,9 @@ export default function CalculatedData() {
     <>
       <h1>Calculation History</h1>
       {loading ? (
-        <div>Loading...</div>
+        <div className="spinner-div">
+        <div className="spinner-border" role="status"></div>
+      </div>
       ) : (
         <table className="table table-striped">
           <thead>
