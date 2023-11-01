@@ -1,4 +1,4 @@
-require("dotenv").config({ path: "../.env" });
+require("dotenv").config({ path: "../.env.development.local" });
 
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -22,11 +22,11 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/calculation", calculationRoutes);
 
-app.listen(process.env.HOST, () => {
-  console.log(`Server listening at ${process.env.HOST}`);
+app.listen(8000, () => {
+  console.log(`Server listening at 8000`);
 });
 
-mongoose.connect(process.env.MONGO_URL, {
+mongoose.connect("mongodb+srv://Venkatesh:Venkatesh@cluster0.ym2ts75.mongodb.net/?retryWrites=true&w=majority", {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
