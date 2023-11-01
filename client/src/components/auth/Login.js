@@ -16,7 +16,10 @@ export default function Login({ updateAuthStatus, isAuthenticated }) {
     e.preventDefault();
 
     await axios
-      .post(`${process.env.REACT_APP_BACKEND_URL}/api/auth/login`, { email, password })
+      .post(`${process.env.REACT_APP_BACKEND_URL}/api/auth/login`, {
+        email,
+        password
+      })
       .then(res => {
         Cookies.set("token", res.data.token);
         updateAuthStatus(true);
